@@ -62,8 +62,8 @@
       color: #f5f5f5;
     }
 
-    .top-left { display: flex; align-items: center; gap: 8px; }
-    .top-logo { height: calc(100% - 6px); margin: 3px 0; }
+    .top-left { display: flex; align-items: center; gap: 8px; height: 68px; }
+    .top-logo { height: calc(100% - 6px); margin: 3px 0; width: auto; object-fit: contain; display: block; }
     .top-title { font-weight: bold; }
 
     /* Legend */
@@ -188,7 +188,7 @@
 
 <div id="top-bar">
   <div class="top-left">
-    <img src="assets/logo.png" class="top-logo" />
+    <img src="assets/logo.png" class="top-logo" alt="Logo" />
     <div class="top-title">Royal Cartography Bureau</div>
   </div>
 </div>
@@ -240,10 +240,7 @@
   const overlayA = L.imageOverlay('assets/overlays/overlay-a.png', mapBounds, { opacity: 1.0 });
   const overlayB = L.imageOverlay('assets/overlays/overlay-b.png', mapBounds, { opacity: 0.5 });
 
-  const overlayConfig = {
-    overlayA: overlayA,
-    overlayB: overlayB
-  };
+  const overlayConfig = { overlayA, overlayB };
 
   const bindOverlayToggle = (id, layer) => {
     const el = document.getElementById(id);
