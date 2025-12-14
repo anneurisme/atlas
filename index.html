@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Neighborhoods of Gilneas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+
+    #map {
+      position: absolute;
+      top: 68px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+    }
+
+    .custom-popup {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .label-with-emoji {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 2px 6px 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      white-space: nowrap;
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+    }
+
+    .label-with-emoji .label-emoji {
+      margin-right: 4px;
+      transform: translateX(-4px);
+    }
+
+    .emoji-dot {
+      font-size: 18px;
+      line-height: 18px;
+      text-align: center;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease, font-size 0.15s ease;
+    }
+
+    .marker-highlight {
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9));
+      opacity: 1;
+    }
+
+    .marker-highlight .emoji-dot {
+      font-size: 26px;
+      line-height: 26px;
+    }
+
+    .marker-highlight .label-with-emoji {
+      transform: scale(1.8);
+    }
+
+    .marker-dim { opacity: 0.45; }
+
+    /* FULLSCREEN LOADING OVERLAY */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loading-screen .loading-bg {
+      position: absolute;
+      inset: 0;
+      background: url('assets/loadingbackground.png') center/cover no-repeat rgba(0, 0, 0, 0.85);
+      filter: brightness(0.4) blur(2px);
+      z-index: 1;
+    }
+
+    .loading-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-pulse {
+      opacity: 0.9;
+      animation: pulse 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.7));
+    }
+
+    #loading-screen img.loading-pulse {
+      width: 400px !important;
+      height: 400px !important;
+      max-width: none !important;
+      max-height: none !important;
+      object-fit: contain;
+      display: block;
+    }
+
+    .loading-text {
+      font-size: 40px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1.00); opacity: 0.92; }
+      50% { transform: scale(1.03); opacity: 1.0; }
+      100% { transform: scale(1.00); opacity: 0.92; }
+    }
+
+    /* Popup Styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(0, 0, 0, 0.85) !important;
+      color: #f2f2f2 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      backdrop-filter: blur(3px);
+      padding: 4px;
+    }
+
+    .leaflet-popup-content {
+      color: #f2f2f2 !important;
+      font-family: Arial, sans-serif;
+      line-height: 1.35;
+    }
+
+    .leaflet-popup-tip-container,
+    .leaflet-popup-tip { display: none !important; }
+
+    .title-pop {
+      color: #fbac3a;
+      font-weight: 600;
+    }
+
+    .popup-divider {
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      margin: 6px 0;
+    }
+
+    /* Top bar */
+    #top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: rgba(0, 0, 0, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 9000;
+      font-family: Arial, sans-serif;
+      color: #f5f5f5;
+    }
+
+    #top-bar .top-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 68px;
+    }
+
+    .top-logo {
+      height: calc(100% - 6px);
+      margin: 3px 0;
+      width: auto;
+      object-fit: contain;
+    }
+
+    #top-bar .top-title { font-weight: bold; }
+
+    #top-bar .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Legend */
+    #legend {
+      position: fixed;
+      top: 78px;
+      right: 12px;
+      z-index: 9200;
+      background: rgba(0, 0, 0, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
+      padding: 10px 12px;
+      font-family: Arial, sans-serif;
+      color: #f2f2f2;
+      min-width: 160px;
+      backdrop-filter: blur(3px);
+    }
+
+    .legend-title {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0;
+    }
+
+    .legend-row input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #fbac3a;
+    }
+
+    .legend-label {
+      font-size: 13px;
+      color: #e6e6e6;
+    }
+
+    /* === Bottom Drawer / Plot Image Bar === */
+    #bottom-drawer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.96);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.9);
+      z-index: 9500;
+      display: flex;
+      flex-direction: column;
+      transition: height 0.25s ease;
+      height: 275px;
+      font-family: Arial, sans-serif;
+    }
+
+    #bottom-drawer.collapsed { height: 32px; }
+
+    #drawer-header {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #ccc;
+      background: linear-gradient(to top, #000 0%, #141414 60%);
+    }
+
+    #drawer-chevron {
+      font-size: 28px;
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+
+    #drawer-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      padding: 8px 10px 10px;
+      gap: 10px;
+      box-sizing: border-box;
+    }
+
+    .drawer-left {
+      flex: 1;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(8, 8, 8, 0.95);
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    #drawer-plot-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fbac3a;
+      margin-bottom: 6px;
+    }
+
+    #drawer-plot-owner {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    #drawer-plot-info {
+      font-size: 16px;
+      color: #ddd;
+      line-height: 1.5;
+      overflow-y: auto;
+    }
+
+    .drawer-right {
+      flex: 0 0 55%;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: radial-gradient(circle at top, #222 0, #050505 60%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #drawer-images {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px 6px 16px;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+
+    #drawer-images img {
+      max-height: 150px;
+      width: auto;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
+      object-fit: contain;
+      cursor: pointer;
+    }
+
+    #drawer-images-placeholder {
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    @media (max-width: 800px) {
+      #drawer-body { flex-direction: column; }
+      .drawer-right { flex: 0 0 auto; }
+      #drawer-images img { max-height: 110px; }
+    }
+
+    /* Fullscreen lightbox */
+    #image-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #image-lightbox img {
+      max-width: 100% !important;
+      max-height: 80vh !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+      display: block;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+    }
+
+    #lightbox-close {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div id="top-bar">
+    <div class="top-left">
+      <img src="assets/logo.png" alt="Logo" class="top-logo" />
+      <div class="top-title">KoG Housing</div>
+    </div>
+    <div class="top-right"></div>
+  </div>
+
+  <div id="loading-screen">
+    <div class="loading-bg"></div>
+    <div class="loading-content">
+      <img src="assets/loadinglogo.png" alt="Loading…" class="loading-pulse" />
+      <div class="loading-text">LOADING</div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="legend">
+    <div class="legend-title">Legend</div>
+
+    <label class="legend-row">
+      <input type="checkbox" id="toggle-overlay-1" checked />
+      <span class="legend-label">Overlay A</span>
+    </label>
+
+    <label class="legend-row">
+      <input type="checkbox" id="toggle-overlay-2" checked />
+      <span class="legend-label">Overlay B</span>
+    </label>
+  </div>
+
+  <!-- Bottom Drawer -->
+  <div id="bottom-drawer" class="collapsed">
+    <div id="drawer-header">
+      <span id="drawer-chevron">▲</span>
+    </div>
+    <div id="drawer-body">
+      <div class="drawer-left">
+        <div id="drawer-plot-title"></div>
+        <div id="drawer-plot-owner"></div>
+        <div id="drawer-plot-info"></div>
+      </div>
+      <div class="drawer-right">
+        <div id="drawer-images"></div>
+        <div id="drawer-images-placeholder"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen lightbox -->
+  <div id="image-lightbox">
+    <div class="lightbox-inner">
+      <img id="lightbox-image" src="" alt="Plot image" />
+      <button id="lightbox-close" type="button">×</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const DATA_URL = 'https://script.google.com/macros/s/AKfycbx4mYuCwK4vJzNZ9tGvc0I_xvtBkQ2XyobdeTKmR0RT_1_WOi4dLNPVEScFxrvrUWVFMQ/exec';
+
+    const showLoadingScreen = () => {
+      const el = document.getElementById('loading-screen');
+      if (el) el.style.display = 'flex';
+    };
+
+    const hideLoadingScreen = () => {
+      const el = document.getElementById('loading-screen');
+      if (el) el.style.display = 'none';
+    };
+
+    const formatInfoText = (raw) => {
+      if (!raw) return '';
+
+      let txt = String(raw)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      txt = txt.replace(/\r\n|\r|\n/g, '<br>');
+      txt = txt.replace(/\*\*\*([\s\S]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      txt = txt.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+      txt = txt.replace(/\*([\s\S]+?)\*/g, '<em>$1</em>');
+      txt = txt.replace(/__([\s\S]+?)__/g, '<u>$1</u>');
+      txt = txt.replace(/~~([\s\S]+?)~~/g, '<s>$1</s>');
+
+      return txt;
+    };
+
+    // Map setup
+    const mapBounds = [[0, 0], [2560, 3840]];
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -2,
+      maxZoom: 4,
+      attributionControl: false
+    });
+
+    L.imageOverlay('assets/map.jpg', mapBounds).addTo(map);
+    map.fitBounds(mapBounds);
+
+    // Overlay examples (swap URLs/opacities as needed)
+    const overlayA = L.imageOverlay('assets/overlays/overlay-a.png', mapBounds, { opacity: 1.0 }).addTo(map);
+    const overlayB = L.imageOverlay('assets/overlays/overlay-b.png', mapBounds, { opacity: 0.5 }).addTo(map);
+
+    const overlayConfig = {
+      overlayA: { layer: overlayA, opacity: 1.0 },
+      overlayB: { layer: overlayB, opacity: 0.5 }
+    };
+
+    const bindOverlayToggle = (checkboxId, key) => {
+      const el = document.getElementById(checkboxId);
+      if (!el || !overlayConfig[key]) return;
+
+      el.addEventListener('change', () => {
+        const layer = overlayConfig[key].layer;
+        if (el.checked) layer.addTo(map);
+        else map.removeLayer(layer);
+      });
+    };
+
+    bindOverlayToggle('toggle-overlay-1', 'overlayA');
+    bindOverlayToggle('toggle-overlay-2', 'overlayB');
+
+    const makeEmojiDot = (emoji) => {
+      const em = emoji || '•';
+      return L.divIcon({
+        html: `<div class="emoji-dot">${em}</div>`,
+        className: '',
+        iconSize: [18, 18]
+      });
+    };
+
+    const makeEmojiLabel = (emoji, text) => {
+      const em = emoji || '';
+      const labelText = text || '';
+      return L.divIcon({
+        html:
+          `<div class="label-with-emoji">` +
+            (em ? `<span class="label-emoji">${em}</span>` : '') +
+            `<span class="label-text">${labelText}</span>` +
+          `</div>`,
+        className: '',
+        iconSize: [80, 22]
+      });
+    };
+
+    const iconSwitchZoom = 0;
+    let markers = [];
+    let currentSubdivisionIndex = 0;
+
+    const getSubdivisionIndexFromName = (name) => {
+      const m = (name || '').match(/(\d+)/);
+      return m ? Number(m[1]) : 0;
+    };
+
+    const updateIconsForZoom = () => {
+      const currentZoom = map.getZoom();
+      markers.forEach((obj) => {
+        obj.marker.setIcon(currentZoom >= iconSwitchZoom ? obj.zoomInIcon : obj.zoomOutIcon);
+      });
+    };
+
+    map.on('zoomend', updateIconsForZoom);
+
+    const clearExistingMarkers = () => {
+      markers.forEach((obj) => map.removeLayer(obj.marker));
+      markers = [];
+    };
+
+    // Bottom drawer
+    const bottomDrawer = document.getElementById('bottom-drawer');
+    const drawerHeader = document.getElementById('drawer-header');
+    const drawerChevron = document.getElementById('drawer-chevron');
+    const drawerImages = document.getElementById('drawer-images');
+    const drawerImagesPlaceholder = document.getElementById('drawer-images-placeholder');
+    const drawerPlotTitle = document.getElementById('drawer-plot-title');
+    const drawerPlotOwner = document.getElementById('drawer-plot-owner');
+    const drawerPlotInfo = document.getElementById('drawer-plot-info');
+
+    drawerHeader.addEventListener('click', () => {
+      const collapsed = bottomDrawer.classList.toggle('collapsed');
+      drawerChevron.textContent = collapsed ? '▲' : '▼';
+    });
+
+    const expandDrawer = () => {
+      bottomDrawer.classList.remove('collapsed');
+      drawerChevron.textContent = '▼';
+    };
+
+    // Lightbox
+    const lightbox = document.getElementById('image-lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxClose = document.getElementById('lightbox-close');
+
+    const openLightbox = (src) => {
+      lightboxImage.src = src;
+      lightbox.style.display = 'flex';
+    };
+
+    const closeLightbox = () => {
+      lightbox.style.display = 'none';
+      lightboxImage.src = '';
+    };
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    const extractPlotNumber = (row) => {
+      if (row && row.owner !== undefined && row.owner !== null) {
+        let v = String(row.owner).trim();
+        v = v.replace(/^plot\s*/i, '');
+        return v;
+      }
+      return null;
+    };
+
+    const showPlotImages = (subIndex, plotNumber, title, owner, info) => {
+      if (drawerImages) drawerImages.innerHTML = '';
+      if (drawerImagesPlaceholder) {
+        drawerImagesPlaceholder.style.display = 'block';
+        drawerImagesPlaceholder.textContent = 'Looking for images for this plot...';
+      }
+
+      const sub = subIndex || 0;
+
+      if (drawerPlotTitle) drawerPlotTitle.textContent = title || '';
+      if (drawerPlotOwner) {
+        drawerPlotOwner.textContent =
+          plotNumber != null && plotNumber !== '' ? `Subdivision ${sub} · Plot ${plotNumber}` : '';
+      }
+      if (drawerPlotInfo) drawerPlotInfo.innerHTML = formatInfoText(info || '');
+
+      if (plotNumber == null || plotNumber === '') {
+        if (drawerImagesPlaceholder) drawerImagesPlaceholder.textContent = 'No plot number found for this marker.';
+        return;
+      }
+
+      const maxImages = 6;
+      let loadedCount = 0;
+      let attempted = 0;
+      const loadedImages = [];
+
+      const finalizeImageList = () => {
+        if (attempted < maxImages) return;
+
+        if (loadedCount === 0) {
+          if (drawerImagesPlaceholder) {
+            drawerImagesPlaceholder.style.display = 'block';
+            drawerImagesPlaceholder.textContent = 'No images found for this plot.';
+          }
+          return;
+        }
+
+        loadedImages.sort((a, b) => a.index - b.index);
+
+        if (drawerImages) {
+          drawerImages.innerHTML = '';
+          loadedImages.forEach((item) => drawerImages.appendChild(item.img));
+        }
+      };
+
+      const onFinishedAttempt = () => {
+        attempted++;
+        finalizeImageList();
+      };
+
+      for (let i = 1; i <= maxImages; i++) {
+        const img = new Image();
+        const src = `assets/plots/${sub}-${plotNumber}-${i}.jpg`;
+        img.src = src;
+
+        img.onload = () => {
+          loadedCount++;
+          if (drawerImagesPlaceholder) drawerImagesPlaceholder.style.display = 'none';
+
+          img.addEventListener('click', () => openLightbox(src));
+          loadedImages.push({ index: i, img });
+          onFinishedAttempt();
+        };
+
+        img.onerror = onFinishedAttempt;
+      }
+    };
+
+    const createMarkersFromData = (sheetMarkers) => {
+      clearExistingMarkers();
+
+      sheetMarkers.forEach((row) => {
+        const owner = row.owner || '';
+        const rawTitle = row.title || 'Unknown';
+        const title = rawTitle.length > 22 ? rawTitle.substring(0, 20) + '…' : rawTitle;
+        const info = row.info || '';
+        const x = parseFloat(row.x);
+        const y = parseFloat(row.y);
+        const type = row.type || '';
+        const plotNumber = extractPlotNumber(row);
+
+        if (Number.isNaN(x) || Number.isNaN(y)) return;
+
+        const position = [x, y];
+        const zoomOutIcon = makeEmojiDot(type);
+        const zoomInIcon = makeEmojiLabel(type, title);
+
+        const marker = L.marker(position, { icon: zoomOutIcon }).addTo(map);
+
+        const infoHtml = formatInfoText(info);
+        const ownerHtml = plotNumber ? `<i>Plot ${plotNumber}</i>` : '';
+        const divider = ownerHtml && infoHtml ? '<hr class="popup-divider">' : '';
+
+        const popupHtml =
+          `<div class="custom-popup">` +
+            `<span class="title-pop">${rawTitle}</span><br>` +
+            ownerHtml +
+            divider +
+            infoHtml +
+          `</div>`;
+
+        marker
+          .bindPopup(popupHtml, { autoClose: false })
+          .on('mouseover', function () { this.openPopup(); })
+          .on('mouseout', function () { this.closePopup(); })
+          .on('click', () => {
+            expandDrawer();
+            showPlotImages(currentSubdivisionIndex, plotNumber, rawTitle, owner, info);
+          });
+
+        markers.push({
+          marker,
+          zoomOutIcon,
+          zoomInIcon,
+          owner,
+          title,
+          rawTitle,
+          info,
+          x,
+          y,
+          type,
+          plotNumber
+        });
+      });
+
+      updateIconsForZoom();
+    };
+
+    const loadNeighborhood = (sheetName) => {
+      showLoadingScreen();
+      currentSubdivisionIndex = getSubdivisionIndexFromName(sheetName);
+
+      const url = `${DATA_URL}?sheet=${encodeURIComponent(sheetName)}`;
+
+      // fetch(url) // TEMPORARILY DISABLED
+      //   .then((response) => { // TEMPORARILY DISABLED
+      //     if (!response.ok) throw new Error('Network response was not ok'); // TEMPORARILY DISABLED
+      //     return response.json(); // TEMPORARILY DISABLED
+      //   }) // TEMPORARILY DISABLED
+      //   .then((data) => { // TEMPORARILY DISABLED
+      //     createMarkersFromData(data.markers || []); // TEMPORARILY DISABLED
+      //     hideLoadingScreen(); // TEMPORARILY DISABLED
+      //   }) // TEMPORARILY DISABLED
+      //   .catch((error) => { // TEMPORARILY DISABLED
+      //     console.error('Error fetching marker data:', error); // TEMPORARILY DISABLED
+      //     hideLoadingScreen(); // TEMPORARILY DISABLED
+      //   }); // TEMPORARILY DISABLED
+
+      hideLoadingScreen();
+    };
+
+    window.addEventListener('load', () => {
+      // loadNeighborhood('Subdivision 0'); // TEMPORARILY DISABLED
+      hideLoadingScreen();
+    });
+  </script>
+</body>
+</html>
