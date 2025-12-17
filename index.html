@@ -262,6 +262,31 @@
       user-select: none;
     }
 
+    #top-bar .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    #map-search {
+      background: rgba(10, 10, 10, 0.9);
+      color: #f5f5f5;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      width: 220px;
+    }
+    
+    #map-search::placeholder { color: #8b8b8b; }
+    
+    #map-search:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.55);
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+
     
   </style>
 </head>
@@ -271,8 +296,13 @@
       <img src="assets/logo.png" alt="Logo" class="top-logo" />
       <div class="top-title">Royal Cartography Bureau</div>
     </div>
-    <div class="top-right"></div>
+  
+    <div class="top-right">
+      <input id="map-search" type="text" placeholder="Search maps…" list="map-search-list" autocomplete="off" />
+      <datalist id="map-search-list"></datalist>
+    </div>
   </div>
+
 
   <div id="loading-screen">
     <div class="loading-bg"></div>
@@ -376,6 +406,7 @@
 
     const iconSwitchZoom = 99;
     let traceEnabled = false;
+    let mapSearchIndex = [];
 
     const fetchJson = async (url) => {
       if (configCache.has(url)) return configCache.get(url);
@@ -592,10 +623,74 @@
       }
     };
 
+    const buildMapSearchIndex = async () => {
+      if (!indexConfig || !indexConfig.maps) return;
+    
+      const entries = Object.entries(indexConfig.maps); // [id, relPath]
+      const results = [];
+    
+      for (const [id, rel] of entries) {
+        try {
+          const cfg = await fetchJson(`config/${rel}`);
+          results.push({ id, title: cfg.title || id });
+        } catch {
+          results.push({ id, title: id });
+        }
+      }
+    
+      results.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      mapSearchIndex = results;
+    
+      const dl = document.getElementById('map-search-list');
+      if (!dl) return;
+    
+      dl.innerHTML = '';
+      results.forEach((m) => {
+        const opt = document.createElement('option');
+        opt.value = `${m.title} (${m.id})`;
+        dl.appendChild(opt);
+      });
+    };
+    
+    const parseMapIdFromSearchValue = (val) => {
+      const s = (val || '').trim();
+      const m = s.match(/\(([^)]+)\)\s*$/);
+      if (m) return m[1].trim();
+    
+      const lower = s.toLowerCase();
+      const exact = mapSearchIndex.find((x) => (x.title || '').toLowerCase() === lower);
+      if (exact) return exact.id;
+    
+      const partial = mapSearchIndex.find((x) => (x.title || '').toLowerCase().includes(lower));
+      return partial ? partial.id : null;
+    };
+    
+    const wireMapSearch = () => {
+      const input = document.getElementById('map-search');
+      if (!input) return;
+    
+      input.addEventListener('change', () => {
+        const id = parseMapIdFromSearchValue(input.value);
+        if (id) loadMapById(id);
+      });
+    
+      input.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const id = parseMapIdFromSearchValue(input.value);
+        if (id) loadMapById(id);
+      });
+    };
+
+
     window.addEventListener('load', async () => {
       showLoadingScreen();
       try {
         indexConfig = await fetchJson(INDEX_CONFIG_URL);
+    
+        await buildMapSearchIndex();
+        wireMapSearch();
+    
         const start = indexConfig.start;
         if (start) await loadMapById(start);
       } catch (e) {
@@ -604,6 +699,7 @@
         hideLoadingScreen();
       }
     });
+
 
     // Polygon Tracer
     (() => {
