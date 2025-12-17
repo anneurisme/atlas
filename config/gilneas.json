@@ -2,7 +2,7 @@
   "id": "gilneas",
   "title": "Kingdom of Gilneas",
   "bounds": [[0, 0], [1049, 875]],
-  "base": { "image": "assets/map.jpg" },
+  "base": { "image": "https://drive.google.com/uc?export=view&id=1tw11P7SwyfdyiMtyEeNOBb3_Z5VC0IJn" },
   "overlays": [
     { "id": "topo", "label": "Topographic", "image": "assets/overlays/overlay-a.png", "opacity": 1.0, "defaultOn": false },
     { "id": "blend", "label": "Textured/Blended", "image": "assets/overlays/overlay-a.png", "opacity": 0.25, "defaultOn": false }
