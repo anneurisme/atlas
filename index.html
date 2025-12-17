@@ -719,6 +719,9 @@
     
       body.innerHTML = '';
     
+      const mapsIndex = indexConfig && indexConfig.maps ? indexConfig.maps : null;
+      if (!mapsIndex) return;
+    
       const chain = [];
       let cur = cfg;
     
@@ -728,45 +731,7 @@
         const parentId = cur.parent;
         if (!parentId) break;
     
-        const rel = indexConfig?.maps?.[parentId];
-        if (!rel) break;
-    
-        cur = await fetchJson(`config/${rel}`);
-      }
-    
-      chain.reverse();
-    
-      chain.forEach((item, idx) => {
-        if (idx > 0) {
-          const sep = document.createElement('span');
-          sep.className = 'breadcrumb-sep';
-          sep.textContent = '›';
-          body.appendChild(sep);
-        }
-    
-        const a = document.createElement('span');
-        a.className = 'breadcrumb-link';
-        a.textContent = item.title.toUpperCase();
-        a.addEventListener('click', () => loadMapById(item.id));
-        body.appendChild(a);
-      });
-    };
-
-    const buildBreadcrumb = async (cfg) => {
-      const body = document.getElementById('breadcrumb-body');
-      if (!body) return;
-    
-      body.innerHTML = '';
-    
-      const chain = [];
-      let cur = cfg;
-    
-      while (cur) {
-        chain.push({ id: cur.id, title: cur.title || cur.id });
-    
-        if (!cur.parent) break;
-    
-        const rel = indexConfig.maps[cur.parent];
+        const rel = mapsIndex[parentId];
         if (!rel) break;
     
         cur = await fetchJson(`config/${rel}`);
@@ -785,10 +750,11 @@
         const link = document.createElement('span');
         link.className = 'breadcrumb-link';
         link.textContent = item.title.toUpperCase();
-        link.onclick = () => loadMapById(item.id);
+        link.addEventListener('click', () => loadMapById(item.id));
         body.appendChild(link);
       });
     };
+
 
 
   </script>
