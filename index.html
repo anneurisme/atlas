@@ -390,7 +390,7 @@
     
     breadcrumbControl.addTo(map);
 
-
+  
 
     window.addEventListener('resize', () => map.invalidateSize());
     requestAnimationFrame(() => map.invalidateSize());
@@ -682,6 +682,11 @@
       });
     };
 
+    const getInitialMapIdFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('map') || params.get('m') || null;
+    };
+
 
     window.addEventListener('load', async () => {
       showLoadingScreen();
@@ -691,8 +696,10 @@
         await buildMapSearchIndex();
         wireMapSearch();
     
-        const start = indexConfig.start;
+        const fromUrl = getInitialMapIdFromUrl();
+        const start = fromUrl || indexConfig.start;
         if (start) await loadMapById(start);
+
       } catch (e) {
         console.error(e);
       } finally {
