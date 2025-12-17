@@ -1,0 +1,16 @@
+{
+  "id": "gilneas",
+  "title": "Kingdom of Gilneas",
+  "bounds": [[0, 0], [1049, 875]],
+  "base": { "image": "assets/map.jpg" },
+  "overlays": [
+    { "id": "topo", "label": "Topographic", "image": "assets/overlays/overlay-a.png", "opacity": 1.0, "defaultOn": false },
+    { "id": "blend", "label": "Textured/Blended", "image": "assets/overlays/overlay-a.png", "opacity": 0.25, "defaultOn": false }
+  ],
+  "pins": [
+    { "id": "to-b", "pos": [520, 420], "emoji": "🧭", "label": "Region B", "popup": { "title": "Region B", "info": "Click to load Region B." }, "action": { "type": "goto", "target": "region-b" } }
+  ],
+  "regions": [
+    { "id": "hotspot-b", "shape": "rect", "coords": [[420, 520], [620, 720]], "label": "Region B", "action": { "type": "goto", "target": "region-b" } }
+  ]
+}
