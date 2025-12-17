@@ -174,7 +174,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 120px;
+      max-width: 160px;
       text-align: right;
     }
 
@@ -250,7 +250,6 @@
 
   <div id="legend">
     <div class="legend-title">
-      <span>Legend</span>
       <span id="legend-mapname" class="legend-mapname"></span>
     </div>
     <div id="legend-body"></div>
@@ -309,6 +308,9 @@
       attributionControl: false
     });
 
+    window.addEventListener('resize', () => map.invalidateSize());
+    requestAnimationFrame(() => map.invalidateSize());
+
     let indexConfig = null;
     let currentMapId = null;
     let currentMapConfig = null;
@@ -345,7 +347,7 @@
       if (!legendBody) return;
 
       legendBody.innerHTML = '';
-      if (legendMapname) legendMapname.textContent = cfg.title || cfg.id || '';
+      if (legendMapname) legendMapname.textContent = (cfg.title || cfg.id || '').toUpperCase();
 
       const overlays = Array.isArray(cfg.overlays) ? cfg.overlays : [];
       if (overlays.length === 0) {
@@ -486,6 +488,7 @@
 
         baseLayer = L.imageOverlay(cfg.base.image, bounds).addTo(map);
         map.fitBounds(bounds);
+        requestAnimationFrame(() => map.invalidateSize());
 
         const overlays = Array.isArray(cfg.overlays) ? cfg.overlays : [];
         overlays.forEach((ov) => {
@@ -527,9 +530,9 @@
         verts: [],
         hint: null
       };
-    
+
       const toCoord = (latlng) => [Number(latlng.lat.toFixed(2)), Number(latlng.lng.toFixed(2))];
-    
+
       const ensureLayers = () => {
         if (!state.poly) {
           state.poly = L.polygon([], {
@@ -565,22 +568,26 @@
           }).addTo(map);
         }
       };
-    
+
       const setEnabled = (on) => {
         state.enabled = on;
         if (on) {
           ensureLayers();
           state.hint.setLatLng(map.getCenter());
-          state.hint.getElement().style.display = '';
+          const hintEl = state.hint.getElement();
+          if (hintEl) hintEl.style.display = '';
         } else {
-          if (state.hint && state.hint.getElement()) state.hint.getElement().style.display = 'none';
+          if (state.hint) {
+            const hintEl = state.hint.getElement();
+            if (hintEl) hintEl.style.display = 'none';
+          }
         }
       };
-    
+
       const redraw = () => {
         if (!state.poly) return;
         state.poly.setLatLngs(state.points);
-    
+
         state.verts.forEach((m) => map.removeLayer(m));
         state.verts = state.points.map((p, idx) =>
           L.circleMarker(p, {
@@ -593,12 +600,12 @@
             .addTo(map)
         );
       };
-    
+
       const clear = () => {
         state.points = [];
         redraw();
       };
-    
+
       const copyJson = async () => {
         const payload = JSON.stringify(state.points.map(toCoord));
         try {
@@ -608,27 +615,27 @@
           console.log('Coords:', payload);
         }
       };
-    
+
       map.on('click', (e) => {
         if (!state.enabled) return;
-    
+
         if (e.originalEvent && e.originalEvent.shiftKey) {
           state.points.pop();
           redraw();
           return;
         }
-    
+
         state.points.push(e.latlng);
         redraw();
       });
-    
+
       document.addEventListener('keydown', (e) => {
         if (e.key === 't' || e.key === 'T') {
           setEnabled(!state.enabled);
           return;
         }
         if (!state.enabled) return;
-    
+
         if (e.key === 'Escape') {
           clear();
           return;
@@ -638,14 +645,13 @@
           copyJson();
         }
       });
-    
+
       map.on('move', () => {
         if (state.enabled && state.hint) state.hint.setLatLng(map.getCenter());
       });
-    
+
       setEnabled(false);
     })();
-
   </script>
 </body>
 </html>
