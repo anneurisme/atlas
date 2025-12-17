@@ -2,6 +2,6 @@
   "start": "gilneas",
   "maps": {
     "gilneas": "gilneas.json",
-    "region-b": "test.json"
+    "caerseren": "caerseren.json"
   }
 }
