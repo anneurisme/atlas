@@ -3,6 +3,7 @@
   "maps": {
     "gilneas": "gilneas.json",
     "caerseren": "caerseren.json",
-    "ravenswood": "ravenswood.json"
+    "ravenswood": "ravenswood.json",
+    "ashencoast": "ashencoast.json"
   }
 }
