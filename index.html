@@ -647,7 +647,7 @@
       dl.innerHTML = '';
       results.forEach((m) => {
         const opt = document.createElement('option');
-        opt.value = `${m.title} (${m.id})`;
+        opt.value = m.title;
         dl.appendChild(opt);
       });
     };
