@@ -228,43 +228,40 @@
       background: linear-gradient(to top, #000 0%, #141414 60%);
     }
 
-    /* Breadcrumb */
-    #breadcrumb {
-      position: fixed;
-      top: 78px;
-      right: 12px;
-      z-index: 9199;
-      margin-top: 112px; /* sits under legend */
+    /* Breadcrumb Leaflet control */
+    .leaflet-control.breadcrumb-control {
       background: rgba(0, 0, 0, 0.82);
       border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 8px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
-      padding: 10px 12px;
-      font-family: Arial, sans-serif;
-      color: #f2f2f2;
-      min-width: 180px;
+      padding: 8px 10px;
       backdrop-filter: blur(3px);
+      color: #f2f2f2;
+      font-family: Arial, sans-serif;
     }
     
-    #breadcrumb-body {
+    .breadcrumb-body {
       font-size: 12px;
       color: #ddd;
       line-height: 1.35;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
+      max-width: 240px;
     }
     
     .breadcrumb-link {
       color: #fbac3a;
       cursor: pointer;
-      text-decoration: none;
       user-select: none;
+      white-space: nowrap;
     }
     
     .breadcrumb-sep {
       color: #777;
+      user-select: none;
     }
+
     
   </style>
 </head>
@@ -293,10 +290,6 @@
     </div>
     <div id="legend-body"></div>
   </div>
-  <div id="breadcrumb">
-    <div id="breadcrumb-body"></div>
-  </div>
-
 
   <div id="bottom-drawer">
     <div id="drawer-header">▲</div>
@@ -354,6 +347,19 @@
       zoomDelta: 0.25,
       attributionControl: false
     });
+
+    const breadcrumbControl = L.control({ position: 'topleft' });
+
+    breadcrumbControl.onAdd = () => {
+      const div = L.DomUtil.create('div', 'leaflet-control breadcrumb-control');
+      div.innerHTML = `<div id="breadcrumb-body" class="breadcrumb-body"></div>`;
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
+    };
+    
+    breadcrumbControl.addTo(map);
+
 
 
     window.addEventListener('resize', () => map.invalidateSize());
@@ -550,8 +556,8 @@
           overlayLayers.set(ov.id, layer);
         });
 
-        await buildBreadcrumb(cfg);
         buildLegend(cfg);
+        await buildBreadcrumb(cfg);
         addPins(cfg);
         addRegions(cfg);
         updatePinIconsForZoom();
@@ -745,6 +751,45 @@
         body.appendChild(a);
       });
     };
+
+    const buildBreadcrumb = async (cfg) => {
+      const body = document.getElementById('breadcrumb-body');
+      if (!body) return;
+    
+      body.innerHTML = '';
+    
+      const chain = [];
+      let cur = cfg;
+    
+      while (cur) {
+        chain.push({ id: cur.id, title: cur.title || cur.id });
+    
+        if (!cur.parent) break;
+    
+        const rel = indexConfig.maps[cur.parent];
+        if (!rel) break;
+    
+        cur = await fetchJson(`config/${rel}`);
+      }
+    
+      chain.reverse();
+    
+      chain.forEach((item, idx) => {
+        if (idx > 0) {
+          const sep = document.createElement('span');
+          sep.className = 'breadcrumb-sep';
+          sep.textContent = '›';
+          body.appendChild(sep);
+        }
+    
+        const link = document.createElement('span');
+        link.className = 'breadcrumb-link';
+        link.textContent = item.title.toUpperCase();
+        link.onclick = () => loadMapById(item.id);
+        body.appendChild(link);
+      });
+    };
+
 
   </script>
 </body>
