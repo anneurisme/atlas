@@ -375,6 +375,7 @@
     const regionLayers = [];
 
     const iconSwitchZoom = 0;
+    let traceEnabled = false;
 
     const fetchJson = async (url) => {
       if (configCache.has(url)) return configCache.get(url);
@@ -461,19 +462,30 @@
         const zoomInIcon = makeEmojiLabel(p.emoji, p.label || '');
 
         const marker = L.marker(pos, { icon: zoomOutIcon }).addTo(map);
-
-        if (p.popup && (p.popup.title || p.popup.info)) {
+        
+          if (p.popup && (p.popup.title || p.popup.info)) {
           const html =
             `<div style="font-family:Arial,sans-serif;font-size:14px;">` +
               (p.popup.title ? `<div style="color:#fbac3a;font-weight:600;">${safeText(p.popup.title)}</div>` : '') +
               (p.popup.info ? `<div style="margin-top:4px;color:#ddd;line-height:1.35;">${safeText(p.popup.info)}</div>` : '') +
             `</div>`;
           marker.bindPopup(html, { autoClose: false });
-          marker.on('mouseover', function () { this.openPopup(); });
-          marker.on('mouseout', function () { this.closePopup(); });
+
+          marker.on('mouseover', function (e) {
+            if (traceEnabled) return;
+            this.openPopup();
+          });
+
+          marker.on('mouseout', function (e) {
+            if (traceEnabled) return;
+            this.closePopup();
+          });
         }
 
-        marker.on('click', () => runAction(p.action));
+        marker.on('click', (e) => {
+          if (traceEnabled) return;
+          runAction(p.action);
+        });
 
         marker.__zoomInIcon = zoomInIcon;
         marker.__zoomOutIcon = zoomOutIcon;
@@ -516,9 +528,21 @@
           layer = L.rectangle(coords, baseStyle).addTo(map);
         }
 
-        layer.on('mouseover', () => layer.setStyle(hoverStyle));
-        layer.on('mouseout', () => layer.setStyle(baseStyle));
-        layer.on('click', () => runAction(r.action));
+        layer.on('mouseover', () => {
+          if (traceEnabled) return;
+          layer.setStyle(hoverStyle);
+        });
+
+        layer.on('mouseout', () => {
+          if (traceEnabled) return;
+          layer.setStyle(baseStyle);
+        });
+
+        layer.on('click', (e) => {
+          if (traceEnabled) return;
+          runAction(r.action);
+        });
+
 
         if (r.label) layer.bindTooltip(r.label, { direction: 'top', sticky: true, opacity: 0.85 });
 
@@ -631,6 +655,8 @@
 
       const setEnabled = (on) => {
         state.enabled = on;
+        traceEnabled = on;
+        
         if (on) {
           ensureLayers();
           state.hint.setLatLng(map.getCenter());
@@ -678,6 +704,12 @@
 
       map.on('click', (e) => {
         if (!state.enabled) return;
+        L.DomEvent.stop(e);
+        
+        if (e.originalEvent) {
+          e.originalEvent.preventDefault();
+          e.originalEvent.stopPropagation();
+        }
 
         if (e.originalEvent && e.originalEvent.shiftKey) {
           state.points.pop();
