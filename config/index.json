@@ -2,6 +2,7 @@
   "start": "gilneas",
   "maps": {
     "gilneas": "gilneas.json",
-    "caerseren": "caerseren.json"
+    "caerseren": "caerseren.json",
+    "ravenswood": "ravenswood.json"
   }
 }
