@@ -1,1 +1,7 @@
-
+{
+  "start": "gilneas",
+  "maps": {
+    "region-1": "arevass.json",
+    "region-b": "test.json"
+  }
+}
