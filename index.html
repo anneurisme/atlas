@@ -517,6 +517,135 @@
         hideLoadingScreen();
       }
     });
+
+    // Polygon Tracer
+    (() => {
+      const state = {
+        enabled: false,
+        points: [],
+        poly: null,
+        verts: [],
+        hint: null
+      };
+    
+      const toCoord = (latlng) => [Number(latlng.lat.toFixed(2)), Number(latlng.lng.toFixed(2))];
+    
+      const ensureLayers = () => {
+        if (!state.poly) {
+          state.poly = L.polygon([], {
+            color: '#fbac3a',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.12
+          }).addTo(map);
+        }
+        if (!state.hint) {
+          state.hint = L.marker(map.getCenter(), {
+            interactive: false,
+            icon: L.divIcon({
+              className: '',
+              html: `
+                <div style="
+                  background: rgba(0,0,0,0.82);
+                  border: 1px solid rgba(255,255,255,0.18);
+                  color: #f2f2f2;
+                  font-family: Arial, sans-serif;
+                  font-size: 12px;
+                  padding: 6px 8px;
+                  border-radius: 8px;
+                  backdrop-filter: blur(3px);
+                  box-shadow: 0 10px 28px rgba(0,0,0,0.75);
+                  white-space: nowrap;
+                ">
+                  Tracer ON · Click add · Shift+Click undo · Enter copy · Esc clear
+                </div>
+              `,
+              iconSize: [10, 10]
+            })
+          }).addTo(map);
+        }
+      };
+    
+      const setEnabled = (on) => {
+        state.enabled = on;
+        if (on) {
+          ensureLayers();
+          state.hint.setLatLng(map.getCenter());
+          state.hint.getElement().style.display = '';
+        } else {
+          if (state.hint && state.hint.getElement()) state.hint.getElement().style.display = 'none';
+        }
+      };
+    
+      const redraw = () => {
+        if (!state.poly) return;
+        state.poly.setLatLngs(state.points);
+    
+        state.verts.forEach((m) => map.removeLayer(m));
+        state.verts = state.points.map((p, idx) =>
+          L.circleMarker(p, {
+            radius: 4,
+            weight: 2,
+            color: '#fbac3a',
+            fillColor: '#000',
+            fillOpacity: 0.9
+          }).bindTooltip(String(idx + 1), { direction: 'center', permanent: true, opacity: 0.85 })
+            .addTo(map)
+        );
+      };
+    
+      const clear = () => {
+        state.points = [];
+        redraw();
+      };
+    
+      const copyJson = async () => {
+        const payload = JSON.stringify(state.points.map(toCoord));
+        try {
+          await navigator.clipboard.writeText(payload);
+          console.log('Copied coords:', payload);
+        } catch {
+          console.log('Coords:', payload);
+        }
+      };
+    
+      map.on('click', (e) => {
+        if (!state.enabled) return;
+    
+        if (e.originalEvent && e.originalEvent.shiftKey) {
+          state.points.pop();
+          redraw();
+          return;
+        }
+    
+        state.points.push(e.latlng);
+        redraw();
+      });
+    
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 't' || e.key === 'T') {
+          setEnabled(!state.enabled);
+          return;
+        }
+        if (!state.enabled) return;
+    
+        if (e.key === 'Escape') {
+          clear();
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          copyJson();
+        }
+      });
+    
+      map.on('move', () => {
+        if (state.enabled && state.hint) state.hint.setLatLng(map.getCenter());
+      });
+    
+      setEnabled(false);
+    })();
+
   </script>
 </body>
 </html>
