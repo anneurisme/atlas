@@ -8,7 +8,7 @@
   
   ],
   "pins": [
-  
+        { "id": "mauxwood", "pos": [253.13,241.11], "emoji": "🚩", "label": "Mauxwood", "popup": { "title": "Mauxwood", "info": "A town in Ravenswood." }, "action": { "type": "goto", "target": "mauxwood" } }
    ],
   "regions": [
   
