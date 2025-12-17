@@ -2,7 +2,7 @@
   "id": "gilneas",
   "title": "Kingdom of Gilneas",
   "bounds": [[0, 0], [1049, 875]],
-  "base": { "image": "https://drive.google.com/uc?export=view&id=1tw11P7SwyfdyiMtyEeNOBb3_Z5VC0IJn" },
+  "base": { "image": "https://lh3.googleusercontent.com/rd-d/ALs6j_G6RVZ_81E8Xn32b3McrvOsayTpxAUbl1lPKh-HZYplEKt2TLu0cq-AuDES1CSup2f6nBcj7tMz8yPPhtn2iziNjmoLTpH_tZJ1vyrX3Q9-x7HMJsMs3i1dj5geFRQDm3JAWBwTcTiwObnSN3LtYXApoYHNYp9XrxK87TqFzp5uPdp87jNdwC9KAbD6yuT_9dWjhTpMIgkLPy6pSrsxE5H3Mwh9Q_SS2aL4GdhJYc5N7mBFkFRAPIJqri8Bk6eKuoqNuUOhKOzQVnKh4hb3qRj6p1FiclKv0CPFryQ2jzen6BiQCE_em-s3UvuLtbyLa3fe8BFlBAXD53u_vjQlVwVhxyvtSTQfn4__-s5TxMwGGGzKNItOAo5J69vVfJfQ1V6otpbeQw1l0PSY4gpdy9p3-1mR6hxmt3lZ1CRimGiIlsSPhFYgYDYyz94UREJA89pMNRTYf7GmacBUkN7b-3buIW-6g-pjJF7MWNFH0WHnlpUmgNx3purvRZgEeDUFMkJdIzzdcCogmZstlPjwCJF2eiUoO_vWdltw8kqVraMf7_HTDX5FU9WpQRw1_71Za8QvL7oVa7pz9AxsRcXrcdLKAoesiTd0ooy33VSUFYDLW75BXMAvyc6uqnjOWzYsFUDEmqDY7fQI-27lM7d2lcX0Y6317-E75OhO_Z9CT9Dif-_Iyc_LazOBYg1VdFKkUN6RJwz7l4ZooSZuxJ76YZRVbZItDiUQHxvG3jlTSHMhTEWBuvDNxAwqmiC5is46GhTGi8d4lrhtQOPzUFarzitaGt-srkMU0CpATirFl9_qn5PPlm0-IKHPBXZE37blzCNmFzxGXnaZx5SbIlBYFezowIKJax53Eg2A-BYfQRXNWC13EZfQSIC4aZ5CHT_OEVX90CqErVGkpqbOhca18B8OEwhipRjfkvw7e8fEel5LRCzcJudXm4Ya6--k_57_3NBPWuXUJPUZyVFhoX1keBdPfQJJcnh6fUw3i3A2x9hLierCGFjVqd2B5ezkVDDmUFuHDFFJUdJ6=w2560-h1346?auditContext=prefetch" },
   "overlays": [
     { "id": "topo", "label": "Topographic", "image": "assets/overlays/overlay-a.png", "opacity": 1.0, "defaultOn": false },
     { "id": "blend", "label": "Textured/Blended", "image": "assets/overlays/overlay-a.png", "opacity": 0.25, "defaultOn": false }
