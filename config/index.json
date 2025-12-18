@@ -19,6 +19,9 @@
     "northwald": "northwald.json",
     "gilneascity": "gilneascity.json",
     "eastwick": "eastwick.json",
-    "westguardisle": "westguardisle.json"
+    "westguardisle": "westguardisle.json",
+    "hindrancebay": "hindrancebay.json",
+    "northgate": "northgate.json",
+    "alborough": "alborough.json"
   }
 }
