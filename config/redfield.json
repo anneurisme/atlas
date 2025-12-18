@@ -1,0 +1,15 @@
+{
+  "id": "redfield",
+  "title": "Duchy Redfield",
+  "parent": "gilneas",
+  "bounds": [[0, 0], [898, 898]],
+  "base": { "image": "https://lh3.googleusercontent.com/rd-d/ALs6j_HmoJt-ZhL1UfQteigG3gucTuC0aIOMcw-t0ES6lhPRV2c8u86Ml_hPeGO8wiEjIO7ngkR2Dn8WTEsWkKVGhxEfOd-709wlj7B7u2UPXH0qrQC4lR0XDv6qLLWOti8-wOCy-ddwCNc0H-IkCCjcZtcIBGxqstne36B5sAbnCGoAIwrWYpoOb7xd4R3oDr9vT2BxGcLhpxeq62K15Bhb32dw-EYwEYN3DBb1CGpiLLgIAZOUV44ImH11TjFIehILgFekYw-VCpdE8knyqcsEfgAFpHjpWWkxuU0boTOzEWmH_JX9C62RFFMQ8u-oUNlmKK_2YZQOR-yOpSb-nZ3eX0zj8XWi1oDr7vBYaJ40O-jj67hkH7f4Q5juVuwJRKRDWdG5TjxcdjfrBfhl7Icfm0fKvj7Fn48S1YxX6iD2_xAJ6Ovl6FEzGu0FuU6WuQT6TlKTQ1jilN6qnBZcK1aTg6BSg-vwlp0vsGEYv0vjPk8KrQgunHAKFbmQpIFFrGGC7Ab8SLWLc89LEkp8-0L6wsg6oScjkdhwf9n__7GsBIuPEjwZv5ddXuxuDJfXGYxMQ5dnO0NRPG9PxLozqi9FfHTnysOE6ZC5gkkOYngOBJm7HHd2KnrWmOc7C6_dGGHQoy840Lwxm2_JTGt6kZOIY9OmnRKx5ao7AtGRvyZrmmVL-vQFD5I3q3LMzqSRS1ZY9oDbJ4GOq2Bcb5w_Ncw2NyhiDWc1sq4vH2kIsNH8ZvP8EqBH2q8qdNngtNWxmo9sI2KSMhZJ4WcxXjI3kXwLhKgkSxK5JhXBT59OhWqXK9Ld4aDl-vRxv2IPnxQeM2zUOsi-n8csH8EN7TCq7oUMBAP1aSyipN-URanYc4W5SCfxLL7XV3-swqn2RBj7MVwh30f2yJhniPMPKzqOKaR1fMIe9CfsPHlkcPK9f8a75ycIsD5QfYUxkofOrNCU2wEJr1s4Vu2q4b4XSWsjTm0mGkGHEv7cGfYTebYUXgsEmgLNerB9ZojVEomS-pUXRLJVLz3mFA3LsrI=w2560-h1346?auditContext=prefetch" },
+  "overlays": [
+  
+  ],
+  "pins": [
+   ],
+  "regions": [
+  
+  ]
+}
