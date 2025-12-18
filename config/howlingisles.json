@@ -1,0 +1,10 @@
+{
+  "id": "howlingisles",
+  "title": "Duchy of the Howling Isles",
+  "parent": "gilneas",
+  "bounds": [[0, 0], [1151, 1535]],
+  "base": { "image": "https://lh3.googleusercontent.com/rd-d/ALs6j_E6Py46QRjA8LUBvu99OEu3vfkPUeat2ve_IpGHFxsg3_qoiyDNbHx3mDDXp5Zx_Mxp2rAoCu8t71quZVSYvM8FJFU1XSNCYu239Xvv-54n6zxTyF9cS9Zbi8hXccvQK0ltndagY6kcQit7sXK1iDfOza3vLmTapQtudsOjzM34h2OK92FKJOK53pGfyxIVdK-acBcdBLjvEpYnqgnFvEiyCfg_0jUNHipF2yRR6Y5doI6WVJKJnRKdDTwDRsSq1OE0my4pba6D6jcCPXVgl0qHweWnEXh9IC7MJdyVNXcGn9zgdNtU2DtUHxUoPygcL_RnKVX9Th49K0Y5zFc2MDVApYrwK2j36i25kXXHhbKxafwb8Zfi2Vh09ZP5z34aTX2HGQC2PXJDw8iLL6teJPbqMqlyttQ76aAes3oaPpw0NkDHhc3ZUdWzTPTXXuaAjPOygwjhjOGITpCMozplgOHEyXGfepYHWlSwc68qwgLet2aPh_vTfVZEa5Ef7hS-LY-wk1WS89svwD-kP1HtXPMoBtys2l99XTLrfh8BGHgDChOjbWm09BMTuv265yyt2AzgOqH9Hd5sPSMbVTKNRV0eS0KbT8MnfPGF6YQMbpWkQ3grmVyEZ0nO9vTJhXAT8_YuPPfvMv3L-4jKkpMzHt86dnrGqsn4hh3HlIxWqGhwMo0Ms610uZ8Y7v2GLQ7zWMZRKORCkdXbZXq9CrUttYk6y-6crG6sZQIvCHTq0FMwxhVh1C-jDgGTEzrzTpcgKWyeKtg1oUd_vO1YjMDKLzFnbODQe9AqjGip6n1jFA1_7olIGYMRUD9fxssneoqzutRARKA5XVX2cMObK2hZwTFnFmM1P7v3yBEL-giRZZP7HFFKQivYKUFS_-jz2kV4nJL7XzGiK9stEwr93CWZT_HPTjCfFHhGIT1pqGDbDOSZ0z2jtSegoHhiLYqL5sDp3Pd0yJwOaOTid2OIw2hjxuOGYJC66Ep_eLNwv7gHitmAad2SEGloEzqYFOH4qrrw_bTuuWBjwDE=w1875-h1151?auditContext=prefetch" },
+  "overlays": [],
+  "pins": [],
+  "regions": []
+}
