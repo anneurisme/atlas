@@ -1,0 +1,10 @@
+{
+  "id": "arevass",
+  "title": "Duchy Arevass",
+  "parent": "gilneas",
+  "bounds": [[0, 0], [781, 1301]],
+  "base": { "image": "https://lh3.googleusercontent.com/rd-d/ALs6j_GSC78lgVVFRUD-_8xD_ORL7YAbiclHTb2BeNsj9v273rwHsofVj8Z8wqPoe23LadrJ8wgVNW6UoXWPNFQXUgK1IpnZOSjUqv_CIJirpg0u1VCJ2K4H50qXkMyanGvGaBVXPw43r5c-WL9BgeFDHtoMRHJQEIKoWgn-GMU_tfThTUpttD8RAaWMvtFgFPgMOWYKArPZ26yVPT9WWViLYJP5xMP09uyuCkAElJTm74Oca-3fWCrmDJ-GJUCLa_CARlb5PoxJwOZuZS8SQeYNgJdLbr4gVss33SZ9bKQxDIWDUvWivqJ0fzMaTi4zk23FuUpMErwI21XtUuolwMcUOZlRiM-d0BEAo8K-x7kyX9ioR0XKD2P7qIWoQ7ZN1_SxXPRzFnnqwMgSOCn44-8HAHrZRUaRj8zalQJxI7O_Q63_Zfun8RMSeVrh4CFiEm1fttZnIJ8wTwgkMSY9irtIfgSE2HAAIF_M7q60xB9ta11aOOu5aGpqjvXMy0-3E5voHvHPnQZ6DCMtVTZc1XWTzlLcIjLkRTlP80sqkcQysogVNhvWmGSdLAIcJ_Tm4qqnDdFQmYanNoAY0-UrxqSdfDuR-7KDavsT16YcM8jgoDt_YlfjwWHe0jyQApUE7YGrYNMZLLK3NStctjJecLKtORG-8TKN-2NBSrz4S6I37MTBdq2rc2fWpmxRcKWtw7e0FjDivaVM7XNMK7lwjNiSI5AGBT5vFJdy5PBkaGVB2jvWlnYxsy-KG8H818LnJpNypC86RRozkmRMOdQsus-4w4SFuVUn7hqymqguhkLBnUptB-HGTj3hNLYswONY1MVOPSrmJHxzeP52PrZiMSLpJ5jKVzpklA8bukFw85WZyRMnCjdSFuK5OVGvxNxhmCl24EuMZ5OAiHJO7j-4xCJl0uL9iSdm8RXHhLBDDnLK7N4vkYKU_d8B5O_lry4_Afp0ytdmgTNO4DfF2lWNyx0HA3pG124euXSZaWYrqPJgE7WqMyJ_mmbmY28iOWge3KmRkkG0OdNjztmS=w1301-h835?auditContext=prefetch" },
+  "overlays": [],
+  "pins": [],
+  "regions": []
+}
