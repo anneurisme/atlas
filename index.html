@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gilnean Atlas</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <style>
     html, body { height: 100%; margin: 0; }
 
+    /* Map and Markers for leaflet */
     #map {
       position: absolute;
       top: 68px;
@@ -44,7 +46,7 @@
       transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease, font-size 0.15s ease;
     }
 
-    /* FULLSCREEN LOADING OVERLAY */
+    /* Loading Screen Start */
     #loading-screen {
       position: fixed;
       inset: 0;
@@ -198,7 +200,7 @@
       color: #e6e6e6;
     }
 
-    /* Bottom drawer (shell kept, no content wired) */
+    /* Bottom drawer - Legacy item from HOUSING use. Keeping for now. */
     #bottom-drawer {
       position: fixed;
       left: 0;
@@ -213,6 +215,7 @@
       transition: height 0.25s ease;
       height: 32px;
       font-family: Arial, sans-serif;
+      display: hidden; /* !! Hide until we find a new use for it. */
     }
 
     #drawer-header {
@@ -228,7 +231,7 @@
       background: linear-gradient(to top, #000 0%, #141414 60%);
     }
 
-    /* Breadcrumb Leaflet control */
+    /* Breadcrumb control */
     .leaflet-control.breadcrumb-control {
       background: rgba(0, 0, 0, 0.82);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -267,7 +270,8 @@
       align-items: center;
       gap: 8px;
     }
-    
+
+    /* Search bar */
     #map-search {
       background: rgba(10, 10, 10, 0.9);
       color: #f5f5f5;
@@ -329,21 +333,23 @@
   <script>
     const INDEX_CONFIG_URL = 'config/index.json';
 
+    // loading screen
     const showLoadingScreen = () => {
       const el = document.getElementById('loading-screen');
       if (el) el.style.display = 'flex';
     };
-
     const hideLoadingScreen = () => {
       const el = document.getElementById('loading-screen');
       if (el) el.style.display = 'none';
     };
 
+    // Text scrub
     const safeText = (s) => {
       if (s == null) return '';
       return String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     };
 
+    // Single Emoji Markers/Pins
     const makeEmojiDot = (emoji) => {
       const em = emoji || '•';
       return L.divIcon({
@@ -353,6 +359,7 @@
       });
     };
 
+    // Black tab emoji + label
     const makeEmojiLabel = (emoji, text) => {
       const em = emoji || '';
       const labelText = text || '';
@@ -367,8 +374,8 @@
       });
     };
 
+    // New Map initialization
     const configCache = new Map();
-
     const map = L.map('map', {
       crs: L.CRS.Simple,
       minZoom: -2,
@@ -378,8 +385,8 @@
       attributionControl: false
     });
 
+    // Breadcrumbs
     const breadcrumbControl = L.control({ position: 'topleft' });
-
     breadcrumbControl.onAdd = () => {
       const div = L.DomUtil.create('div', 'leaflet-control breadcrumb-control');
       div.innerHTML = `<div id="breadcrumb-body" class="breadcrumb-body"></div>`;
@@ -387,14 +394,12 @@
       L.DomEvent.disableScrollPropagation(div);
       return div;
     };
-    
     breadcrumbControl.addTo(map);
-
-  
 
     window.addEventListener('resize', () => map.invalidateSize());
     requestAnimationFrame(() => map.invalidateSize());
 
+    // Init zone for variables and values
     let indexConfig = null;
     let currentMapId = null;
     let currentMapConfig = null;
@@ -408,9 +413,9 @@
     let traceEnabled = false;
     let mapSearchIndex = [];
 
+    // Functions - Most should be self-explanatory, but I'll add comment markers for visua separation
     const fetchJson = async (url) => {
       if (configCache.has(url)) return configCache.get(url);
-    
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error(`Failed to load ${url}`);
       const data = await res.json();
@@ -418,7 +423,7 @@
       return data;
     };
 
-
+    // Clear Layers
     const clearLayers = () => {
       if (baseLayer) { map.removeLayer(baseLayer); baseLayer = null; }
 
@@ -432,6 +437,7 @@
       regionLayers.length = 0;
     };
 
+    // Build Legend - TODO?: I called this legend at first, but could be renamed to layers or overlays.
     const buildLegend = (cfg) => {
       const legendBody = document.getElementById('legend-body');
       const legendMapname = document.getElementById('legend-mapname');
@@ -445,7 +451,7 @@
         legendBody.innerHTML = `<div style="font-size:12px;color:#aaa;">No overlays</div>`;
         return;
       }
-
+      
       overlays.forEach((ov) => {
         const id = ov.id;
         const label = ov.label || id;
@@ -476,6 +482,7 @@
       });
     };
 
+    // Action
     const runAction = (action) => {
       if (!action || typeof action !== 'object') return;
       if (action.type === 'goto' && action.target) {
@@ -483,6 +490,7 @@
       }
     };
 
+    // Pins
     const addPins = (cfg) => {
       const pins = Array.isArray(cfg.pins) ? cfg.pins : [];
       pins.forEach((p) => {
@@ -525,6 +533,7 @@
       });
     };
 
+    // Update pin size as zoom changes
     const updatePinIconsForZoom = () => {
       const z = map.getZoom();
       pinLayers.forEach((m) => {
@@ -535,6 +544,7 @@
 
     map.on('zoomend', updatePinIconsForZoom);
 
+    // Add the region shapes
     const addRegions = (cfg) => {
       const regions = Array.isArray(cfg.regions) ? cfg.regions : [];
       regions.forEach((r) => {
@@ -581,6 +591,7 @@
       });
     };
 
+    // Load map
     const loadMapById = async (id) => {
       if (!indexConfig || !indexConfig.maps) return;
       const rel = indexConfig.maps[id];
@@ -623,6 +634,7 @@
       }
     };
 
+    // Map Search
     const buildMapSearchIndex = async () => {
       if (!indexConfig || !indexConfig.maps) return;
     
@@ -682,12 +694,13 @@
       });
     };
 
+    // Query string direct map access /?map=mapname
     const getInitialMapIdFromUrl = () => {
       const params = new URLSearchParams(window.location.search);
       return params.get('map') || params.get('m') || null;
     };
 
-
+    // Load
     window.addEventListener('load', async () => {
       showLoadingScreen();
       try {
@@ -708,7 +721,7 @@
     });
 
 
-    // Polygon Tracer
+    // Polygon Tracer Tool - Activate with "T"
     (() => {
       const state = {
         enabled: false,
@@ -848,6 +861,7 @@
       setEnabled(false);
     })();
 
+    // Breadcrumb
     const buildBreadcrumb = async (cfg) => {
       const body = document.getElementById('breadcrumb-body');
       if (!body) return;
@@ -873,7 +887,6 @@
       }
     
       chain.reverse();
-    
       chain.forEach((item, idx) => {
         if (idx > 0) {
           const sep = document.createElement('span');
@@ -889,9 +902,7 @@
         body.appendChild(link);
       });
     };
-
-
-
+    
   </script>
 </body>
 </html>
